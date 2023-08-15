@@ -13,6 +13,7 @@ type Config struct {
 	ClientID     string `json:"ClientID"`
 	ClientSecret string `json:"ClientSecret"`
 	TokenURL     string `json:"TokenUrl"`
+	Collection   string `json:"collection"`
 }
 
 func newConfig() *Config {
