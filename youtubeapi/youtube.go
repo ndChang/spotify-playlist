@@ -1,4 +1,4 @@
-package youtube
+package youtubeapi
 
 import (
 	"encoding/json"
@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"spotify-playlist-share/env/env"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -114,10 +115,10 @@ func channelsListByUsername(service *youtube.Service, part []string, forUsername
 		response.Items[0].Statistics.ViewCount))
 }
 
-func init() {
+func StartClient() youtube.Service {
 	ctx := context.Background()
 
-	b, err := ioutil.ReadFile("/Users/andrewchang/go/src/spotify-playlist/env/svr/client_secret.json")
+	b, err := ioutil.ReadFile(env.Env.YoutubeConfig)
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
@@ -130,12 +131,9 @@ func init() {
 	}
 	client := getClient(ctx, config)
 	service, err := youtube.New(client)
-
-	handleError(err, "Error creating YouTube client")
-
-	channelsListByUsername(service, []string{"snippet", "contentDetails", "statistics"}, "GoogleDevelopers")
-}
-
-func Stuff() {
-	fmt.Println("YOUTUBE")
+	if err != nil {
+		log.Fatalf("Error creating YouTube client: %v", err)
+	}
+	fmt.Println("Connected to Youtube")
+	return *service
 }

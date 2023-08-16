@@ -10,10 +10,11 @@ import (
 var Env *Config
 
 type Config struct {
-	ClientID     string `json:"ClientID"`
-	ClientSecret string `json:"ClientSecret"`
-	TokenURL     string `json:"TokenUrl"`
-	Collection   string `json:"collection"`
+	ClientID      string `json:"ClientID"`
+	ClientSecret  string `json:"ClientSecret"`
+	TokenURL      string `json:"TokenUrl"`
+	Collection    string `json:"collection"`
+	YoutubeConfig string `json:"youtubeConfig"`
 }
 
 func newConfig() *Config {

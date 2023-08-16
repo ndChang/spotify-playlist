@@ -6,15 +6,17 @@ import (
 	"spotify-playlist-share/auth"
 	"spotify-playlist-share/env/env"
 	"spotify-playlist-share/playlist"
-	"spotify-playlist-share/youtube"
+	"spotify-playlist-share/youtubeapi"
 
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
+	"google.golang.org/api/youtube/v3"
 )
 
 var accessToken *oauth2.Token
 var authError error
 var client spotify.Client
+var youtubeClient youtube.Service
 var title []string
 
 func init() {
@@ -24,6 +26,7 @@ func init() {
 		log.Fatalf("error retrieve access token: %v", authError)
 	}
 	client = playlist.StartClient(accessToken)
+	youtubeClient = youtubeapi.StartClient()
 }
 
 func main() {
@@ -38,7 +41,5 @@ func main() {
 	// 	retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
 	// 	go filewrite.WriteSongs(list.Name, retrieve)
 	// }
-
-	youtube.Stuff()
 
 }

@@ -11,6 +11,7 @@ import (
 
 func StartClient(accessToken *oauth2.Token) spotify.Client {
 	client := spotify.Authenticator{}.NewClient(accessToken)
+	fmt.Println("Connected to Spotify")
 	return client
 
 }
