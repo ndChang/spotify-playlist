@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"spotify-playlist-share/auth"
 	"spotify-playlist-share/env/env"
+	"spotify-playlist-share/filewrite"
 	"spotify-playlist-share/playlist"
 	"spotify-playlist-share/youtubeapi"
 
@@ -30,16 +30,19 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Enter UserId: ")
+	// fmt.Println("Enter UserId: ")
+	// youtubeapi.FindVideo(&youtubeClient, "")
 	// var input string
 	// fmt.Scanln(&input)
 
-	// collection := playlist.GrabAllUsers(client, env.Env.Collection)
+	collection := playlist.GrabAllUsers(client, env.Env.Collection)
 
-	// for _, list := range collection {
-	// 	title = append(title, list.Name)
-	// 	retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
-	// 	go filewrite.WriteSongs(list.Name, retrieve)
-	// }
+	for _, list := range collection {
+		title = append(title, list.Name)
+		// playlist.GrabSongs(client, list.SpotifyPlaylistId)
+		retrieve := playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
+		// resp, err := http.Get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=" + query + "&type=video&key=AIzaSyCAyXUobLITDElgedb3SbRIs67sBWlDAGQ")
+		go filewrite.WriteSongs(list.Name, retrieve)
+	}
 
 }

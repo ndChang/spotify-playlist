@@ -137,3 +137,11 @@ func StartClient() youtube.Service {
 	fmt.Println("Connected to Youtube")
 	return *service
 }
+
+func FindVideo(service *youtube.Service, song string) {
+	part := []string{"snippet", "contentDetails", "statistics"}
+	call := service.Search.List(part)
+	response, err := call.Do()
+	handleError(err, "")
+	fmt.Println(response)
+}
