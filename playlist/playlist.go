@@ -67,6 +67,5 @@ func GrabAllUsers(client spotify.Client, playlistId string) []datamodel.Playlist
 		UserPlaylistsCollection = append(UserPlaylistsCollection, tempPlaylist)
 	}
 
-	fmt.Println(len(UserPlaylistsCollection))
 	return UserPlaylistsCollection
 }
