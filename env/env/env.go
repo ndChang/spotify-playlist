@@ -15,6 +15,7 @@ type Config struct {
 	TokenURL      string `json:"TokenUrl"`
 	Collection    string `json:"collection"`
 	YoutubeConfig string `json:"youtubeConfig"`
+	YoutubeApi    string `json:"youtubeApiKey"`
 }
 
 func newConfig() *Config {

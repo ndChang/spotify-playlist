@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"spotify-playlist-share/datamodel"
+	"spotify-playlist-share/env/env"
 	"strings"
 
 	"github.com/zmb3/spotify"
@@ -34,7 +35,7 @@ func GrabSongs(client spotify.Client, playlistId string) []string {
 		query := strings.Join(split, "%20")
 
 		var ytr datamodel.YoutubeResponse
-		resp, err := http.Get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=" + query + "&type=video&key=AIzaSyCAyXUobLITDElgedb3SbRIs67sBWlDAGQ")
+		resp, err := http.Get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=" + query + "&type=video&key=" + env.Env.YoutubeApi)
 		if err != nil || resp.StatusCode != 200 {
 			panic("Issue with api call")
 		}

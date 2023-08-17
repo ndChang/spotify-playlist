@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"spotify-playlist-share/datamodel"
+	"spotify-playlist-share/env/env"
 	"strings"
 
 	"github.com/zmb3/spotify"
@@ -30,7 +31,7 @@ func GrabDummySongs(client spotify.Client, playlistId string) []string {
 		query := strings.Join(split, "%20")
 
 		var ytr datamodel.YoutubeResponse
-		resp := SimulateResp("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=" + query + "&type=video&key=AIzaSyCAyXUobLITDElgedb3SbRIs67sBWlDAGQ")
+		resp := SimulateResp("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=" + query + "&type=video&key=" + env.Env.YoutubeApi)
 		if err := json.Unmarshal(resp, &ytr); err != nil {
 			fmt.Println("error", err)
 		}

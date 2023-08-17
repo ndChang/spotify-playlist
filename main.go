@@ -41,7 +41,7 @@ func main() {
 		title = append(title, list.Name)
 		// playlist.GrabSongs(client, list.SpotifyPlaylistId)
 		retrieve := playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
-		// resp, err := http.Get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=" + query + "&type=video&key=AIzaSyCAyXUobLITDElgedb3SbRIs67sBWlDAGQ")
+		// resp, err := http.Get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=" + query + "&type=video&key=")
 		go filewrite.WriteSongs(list.Name, retrieve)
 	}
 
