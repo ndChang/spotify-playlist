@@ -29,6 +29,7 @@ func createTextFile(dirName string, songs string) {
 	err := os.WriteFile("./spodify_list/"+dirName+"/"+dirName+".txt", d1, 0644)
 	check(err)
 
+	//not sure if below code is needed
 	f, err := os.Create("/tmp/dat2")
 	check(err)
 

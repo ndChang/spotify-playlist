@@ -2,10 +2,13 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"spotify-playlist-share/auth"
 	"spotify-playlist-share/database"
+	"spotify-playlist-share/datamodel"
 	"spotify-playlist-share/env/env"
 	"spotify-playlist-share/filewrite"
 	"spotify-playlist-share/playlist"
@@ -61,7 +64,13 @@ func main() {
 	// var input string
 	// fmt.Scanln(&input)
 
-	collection := playlist.GrabAllUsers(client, env.Env.Collection)
+	// // Grab all playlists from a user
+	// collection := playlist.GrabAllUsers(client, env.Env.Collection)
+
+	// // Create Json of Response
+	// DummyGeneration("GrabAllUsers", collection)
+
+	collection := LoadDummyPlaylist()
 
 	for _, list := range collection {
 		title = append(title, list.Name)
@@ -76,9 +85,21 @@ func main() {
 
 		}
 		// retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
-		retrieve := playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
-		filewrite.WriteSongs(list.Name, retrieve)
+		// retrieve := playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
+		// filewrite.WriteSongs(list.Name, retrieve)
 	}
 	wg.Wait()
 
+}
+
+func DummyGeneration(file string, payload []datamodel.Playlist) {
+	j, _ := json.MarshalIndent(payload, "", "  ")
+	filewrite.CreateDummyJson("GrabAllUsers", j)
+}
+
+func LoadDummyPlaylist() []datamodel.Playlist {
+	data := []datamodel.Playlist{}
+	file, _ := ioutil.ReadFile("./env/svr/GrabAllUsers.json")
+	_ = json.Unmarshal([]byte(file), &data)
+	return data
 }
