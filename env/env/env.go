@@ -10,12 +10,19 @@ import (
 var Env *Config
 
 type Config struct {
-	ClientID      string `json:"ClientID"`
-	ClientSecret  string `json:"ClientSecret"`
-	TokenURL      string `json:"TokenUrl"`
-	Collection    string `json:"collection"`
-	YoutubeConfig string `json:"youtubeConfig"`
-	YoutubeApi    string `json:"youtubeApiKey"`
+	ClientID             string `json:"ClientID"`
+	ClientSecret         string `json:"ClientSecret"`
+	TokenURL             string `json:"TokenUrl"`
+	Collection           string `json:"collection"`
+	YoutubeConfig        string `json:"youtubeConfig"`
+	YoutubeApi           string `json:"youtubeApiKey"`
+	User                 string `json:"User"`
+	Passwd               string `json:"Passwd"`
+	Net                  string `json:"Net"`
+	Addr                 string `json:"Addr"`
+	DBName               string `json:"DBName"`
+	AllowNativePasswords bool   `json:"AllowNativePasswords"`
+	Schema               string `json:"Schema"`
 }
 
 func newConfig() *Config {

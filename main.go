@@ -1,13 +1,18 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"spotify-playlist-share/auth"
+	"spotify-playlist-share/database"
 	"spotify-playlist-share/env/env"
 	"spotify-playlist-share/filewrite"
 	"spotify-playlist-share/playlist"
 	"spotify-playlist-share/youtubeapi"
+	"sync"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/youtube/v3"
@@ -18,6 +23,9 @@ var authError error
 var client spotify.Client
 var youtubeClient youtube.Service
 var title []string
+var wg sync.WaitGroup
+var mysqlerr error
+var db *sql.DB
 
 func init() {
 	env.LoadEnv()
@@ -30,6 +38,24 @@ func init() {
 }
 
 func main() {
+	cfg := mysql.Config{
+		User:                 env.Env.User,
+		Passwd:               env.Env.Passwd,
+		Net:                  env.Env.Net,
+		Addr:                 env.Env.Addr,
+		DBName:               env.Env.DBName,
+		AllowNativePasswords: env.Env.AllowNativePasswords,
+	}
+	db, mysqlerr = sql.Open("mysql", cfg.FormatDSN())
+	if mysqlerr != nil {
+		fmt.Println(mysqlerr)
+	}
+	defer db.Close()
+	ping := db.Ping()
+	if ping != nil {
+		log.Fatal(ping)
+	}
+	fmt.Println("Connected!")
 	// fmt.Println("Enter UserId: ")
 	// youtubeapi.FindVideo(&youtubeClient, "")
 	// var input string
@@ -39,10 +65,20 @@ func main() {
 
 	for _, list := range collection {
 		title = append(title, list.Name)
-		// playlist.GrabSongs(client, list.SpotifyPlaylistId)
+		if database.CheckPlaylistEntry(db, list) == false {
+			plErr := database.AddPlaylist(db, list)
+			if plErr != nil {
+				log.Fatal("Playlist failed to add to db")
+			}
+			fmt.Println("Playlist Added to db")
+		} else {
+			fmt.Println("Playlist Exists in db")
+
+		}
+		// retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
 		retrieve := playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
-		// resp, err := http.Get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=" + query + "&type=video&key=")
-		go filewrite.WriteSongs(list.Name, retrieve)
+		filewrite.WriteSongs(list.Name, retrieve)
 	}
+	wg.Wait()
 
 }

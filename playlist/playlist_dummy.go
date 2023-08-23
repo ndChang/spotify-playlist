@@ -13,11 +13,14 @@ import (
 	"github.com/zmb3/spotify"
 )
 
+var counter int
+
 type dummyResp struct {
 	Body []datamodel.YoutubeResponse
 }
 
 func GrabDummySongs(client spotify.Client, playlistId string) []string {
+	fmt.Println("HIT FUnc")
 	playlistSpotifyID := spotify.ID(playlistId)
 	playlist, err := client.GetPlaylist(playlistSpotifyID)
 	if err != nil {
@@ -26,6 +29,7 @@ func GrabDummySongs(client spotify.Client, playlistId string) []string {
 
 	var list []string
 	for _, value := range playlist.Tracks.Tracks {
+		counter++
 		song := value.Track.SimpleTrack.Name + " by " + value.Track.Album.Artists[0].Name
 		split := strings.Split(song, " ")
 		query := strings.Join(split, "%20")
@@ -44,6 +48,7 @@ func GrabDummySongs(client spotify.Client, playlistId string) []string {
 		// fmt.Println(ytr.Items[0].Id.VideoId)
 
 	}
+	fmt.Println(counter)
 	return list
 }
 
