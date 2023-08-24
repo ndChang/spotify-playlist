@@ -72,7 +72,7 @@ func main() {
 
 	collection := LoadDummyPlaylist()
 
-	indb, err := database.Check(db, collection)
+	indb, err := database.CheckPlaylistDB(db, collection)
 	if err != nil {
 		fmt.Println("Error in check: ", err)
 		return

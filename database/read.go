@@ -52,7 +52,7 @@ func CheckAllPlaylistEntries(db *sql.DB, pls []datamodel.Playlist) {
 	fmt.Println(list)
 }
 
-func Check(db *sql.DB, pls []datamodel.Playlist) (map[string]bool, error) {
+func CheckPlaylistDB(db *sql.DB, pls []datamodel.Playlist) (map[string]bool, error) {
 	list := ""
 	for _, pl := range pls {
 		list += fmt.Sprintf("'%s', ", pl.SpotifyPlaylistId)
