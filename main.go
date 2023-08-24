@@ -72,22 +72,30 @@ func main() {
 
 	collection := LoadDummyPlaylist()
 
-	for _, list := range collection {
-		title = append(title, list.Name)
-		if database.CheckPlaylistEntry(db, list) == false {
-			plErr := database.AddPlaylist(db, list)
-			if plErr != nil {
-				log.Fatal("Playlist failed to add to db")
-			}
-			fmt.Println("Playlist Added to db")
-		} else {
-			fmt.Println("Playlist Exists in db")
-
-		}
-		// retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
-		// retrieve := playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
-		// filewrite.WriteSongs(list.Name, retrieve)
+	indb, err := database.Check(db, collection)
+	if err != nil {
+		fmt.Println("Error in check: ", err)
+		return
 	}
+	database.BulkAddPlaylists(db, collection, indb)
+
+	// for _, list := range collection {
+	// 	title = append(title, list.Name)
+	// 	if database.CheckPlaylistEntry(db, list) == false {
+	// 		plErr := database.AddPlaylist(db, list)
+	// 		if plErr != nil {
+	// 			log.Fatal("Playlist failed to add to db")
+	// 		}
+	// 		fmt.Println("Playlist Added to db")
+	// 	} else {
+	// 		fmt.Println("Playlist Exists in db")
+
+	// 	}
+	// 	// retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
+	// 	// retrieve := playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
+	// 	// filewrite.WriteSongs(list.Name, retrieve)
+	// }
+
 	wg.Wait()
 
 }
