@@ -5,6 +5,8 @@ type Playlist struct {
 	Name                     string
 	PlaylistOwnerDisplayName string
 	PlaylistOwnerId          string
+	SnapshotId               string
+	Public                   bool
 }
 
 type YoutubeResponse struct {

@@ -63,7 +63,8 @@ func GrabAllUsers(client spotify.Client, playlistId string) []datamodel.Playlist
 		log.Fatalf("error retrieve playlist data: %v", getPlaylistErr)
 	}
 	for _, Playlist := range userPlaylists.Playlists {
-		tempPlaylist := datamodel.Playlist{SpotifyPlaylistId: Playlist.ID.String(), Name: Playlist.Name, PlaylistOwnerDisplayName: Playlist.Owner.DisplayName, PlaylistOwnerId: Playlist.Owner.ID}
+		fmt.Println(Playlist)
+		tempPlaylist := datamodel.Playlist{SpotifyPlaylistId: Playlist.ID.String(), Name: Playlist.Name, PlaylistOwnerDisplayName: Playlist.Owner.DisplayName, PlaylistOwnerId: Playlist.Owner.ID, SnapshotId: Playlist.SnapshotID, Public: Playlist.IsPublic}
 		UserPlaylistsCollection = append(UserPlaylistsCollection, tempPlaylist)
 	}
 

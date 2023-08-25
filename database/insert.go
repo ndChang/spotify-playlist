@@ -9,7 +9,7 @@ import (
 )
 
 func AddPlaylist(db *sql.DB, pl datamodel.Playlist) error {
-	insertSql := fmt.Sprintf("INSERT INTO %s.playlist(owner, name, spodifyplaylistid, insertdatetime, updatedatetime) VALUES(?,?,?,?,?)", env.Env.Schema)
+	insertSql := fmt.Sprintf("INSERT INTO %s.playlist(owner, name, spodifyplaylistid, insertdatetime, updatedatetime, SpotifyOwnerId) VALUES(?,?,?,?,?,?)", env.Env.Schema)
 	tm := time.Now()
 	stmlins, err := db.Prepare(insertSql)
 	if err != nil {
@@ -18,7 +18,7 @@ func AddPlaylist(db *sql.DB, pl datamodel.Playlist) error {
 	}
 	defer stmlins.Close()
 
-	_, insertErr := stmlins.Exec(pl.PlaylistOwnerId, pl.Name, pl.SpotifyPlaylistId, tm, tm)
+	_, insertErr := stmlins.Exec(pl.PlaylistOwnerId, pl.Name, pl.SpotifyPlaylistId, tm, tm, pl.PlaylistOwnerId)
 	if insertErr != nil {
 		// panic(err)
 		return err
@@ -27,7 +27,7 @@ func AddPlaylist(db *sql.DB, pl datamodel.Playlist) error {
 }
 
 func BulkAddPlaylists(db *sql.DB, pls []datamodel.Playlist, dict map[string]bool) {
-	sqlStr := fmt.Sprintf("INSERT INTO %s.playlist(owner, name, spodifyplaylistid, insertdatetime, updatedatetime) VALUES ", env.Env.Schema)
+	sqlStr := fmt.Sprintf("INSERT INTO %s.playlist(owner, name, spodifyplaylistid, insertdatetime, updatedatetime, SpotifyOwnerId, Public, SnapshotId) VALUES ", env.Env.Schema)
 	var vals []interface{}
 	tm := time.Now()
 	counter := 0
@@ -35,8 +35,8 @@ func BulkAddPlaylists(db *sql.DB, pls []datamodel.Playlist, dict map[string]bool
 	for _, pl := range pls {
 		// SpotifyPlaylistId currently does not exist in db, Add values of playlist to query
 		if dict[pl.SpotifyPlaylistId] != true {
-			sqlStr += "(?, ?, ?, ?, ?),"
-			vals = append(vals, pl.PlaylistOwnerDisplayName, pl.Name, pl.SpotifyPlaylistId, tm, tm)
+			sqlStr += "(?, ?, ?, ?, ?, ?,?, ?),"
+			vals = append(vals, pl.PlaylistOwnerDisplayName, pl.Name, pl.SpotifyPlaylistId, tm, tm, pl.PlaylistOwnerId, pl.Public, pl.SnapshotId)
 			counter++
 		}
 	}
@@ -53,4 +53,17 @@ func BulkAddPlaylists(db *sql.DB, pls []datamodel.Playlist, dict map[string]bool
 	stmt.Exec(vals...)
 
 	fmt.Println("Rows added: ", counter)
+}
+
+func AddUser(db *sql.DB, userid string) {
+	// q := fmt.Sprintf("select * from %s.spotify_users where SpotifyUserId='%s'", env.Env.Schema, userid)
+	q := fmt.Sprintf("INSERT INTO %s.spotify_users(SpotifyUserId, InsertDateTime) VALUES(?, ?)", env.Env.Schema)
+	tm := time.Now()
+	//prepare the statement
+	stmt, _ := db.Prepare(q)
+
+	defer stmt.Close()
+
+	stmt.Exec(userid, tm)
+	fmt.Println("User: " + userid + " added")
 }

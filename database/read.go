@@ -74,7 +74,7 @@ func CheckPlaylistDB(db *sql.DB, pls []datamodel.Playlist) (map[string]bool, err
 		var playlist tables.Playlist
 		var it, ut []uint8
 		if err := rows.Scan(&playlist.Id, &playlist.Name, &playlist.Owner, &playlist.SpotifyPlaylistId,
-			&it, &ut, &playlist.UpdateCreatorId); err != nil {
+			&it, &ut, &playlist.UpdateCreatorId, &playlist.SpotifyOwnerId, &playlist.Public, &playlist.SnapshotId); err != nil {
 			fmt.Println(err)
 			return avail, err
 		}
@@ -82,4 +82,21 @@ func CheckPlaylistDB(db *sql.DB, pls []datamodel.Playlist) (map[string]bool, err
 	}
 	return avail, nil
 
+}
+
+func CheckSpotifyUserDB(db *sql.DB, userid string) bool {
+	q := fmt.Sprintf("select * from %s.spotify_users where SpotifyUserId='%s'", env.Env.Schema, userid)
+	var user tables.SpotifyUser
+	var it []uint8
+	row := db.QueryRow(q)
+	switch err := row.Scan(&user.SpotifyUserId, it); err {
+	case sql.ErrNoRows:
+		return false
+	case nil:
+		fmt.Println("Found: ", user.SpotifyUserId)
+		return true
+	default:
+		panic(err)
+	}
+	return false
 }

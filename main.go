@@ -68,17 +68,20 @@ func main() {
 	// collection := playlist.GrabAllUsers(client, env.Env.Collection)
 
 	// // Create Json of Response
-	// DummyGeneration("GrabAllUsers", collection)
+	// DummyGeneration("GrabAllPrivate", collection)
 
-	collection := LoadDummyPlaylist()
+	// collection := LoadDummyPlaylist()
 
-	indb, err := database.CheckPlaylistDB(db, collection)
-	if err != nil {
-		fmt.Println("Error in check: ", err)
-		return
+	// indb, err := database.CheckPlaylistDB(db, collection)
+	// if err != nil {
+	// 	fmt.Println("Error in check: ", err)
+	// 	return
+	// }
+	// database.BulkAddPlaylists(db, collection, indb)
+	inudb := database.CheckSpotifyUserDB(db, "31ttjryp6mvbrrgsd64j2arbskda")
+	if inudb != true {
+		database.AddUser(db, "31ttjryp6mvbrrgsd64j2arbskda")
 	}
-	database.BulkAddPlaylists(db, collection, indb)
-
 	// for _, list := range collection {
 	// 	title = append(title, list.Name)
 	// 	if database.CheckPlaylistEntry(db, list) == false {
