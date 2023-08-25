@@ -19,6 +19,15 @@ type Playlist struct {
 }
 
 type SpotifyUser struct {
+	Id             int
 	SpotifyUserId  string
 	Insertdatetime time.Time
+}
+
+type Song struct {
+	Id               int
+	Title            string
+	Artist           string
+	Youtube_video_id string
+	Spotify_id       string
 }

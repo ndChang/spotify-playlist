@@ -29,6 +29,7 @@ var title []string
 var wg sync.WaitGroup
 var mysqlerr error
 var db *sql.DB
+var retrieve []datamodel.Song
 
 func init() {
 	env.LoadEnv()
@@ -59,29 +60,100 @@ func main() {
 		log.Fatal(ping)
 	}
 	fmt.Println("Connected!")
-	// fmt.Println("Enter UserId: ")
-	// youtubeapi.FindVideo(&youtubeClient, "")
-	// var input string
-	// fmt.Scanln(&input)
 
-	// // Grab all playlists from a user
-	// collection := playlist.GrabAllUsers(client, env.Env.Collection)
-
-	// // Create Json of Response
-	// DummyGeneration("GrabAllPrivate", collection)
-
-	// collection := LoadDummyPlaylist()
-
-	// indb, err := database.CheckPlaylistDB(db, collection)
-	// if err != nil {
-	// 	fmt.Println("Error in check: ", err)
-	// 	return
-	// }
-	// database.BulkAddPlaylists(db, collection, indb)
+	// Check Db for User if doesnt exist add user
 	inudb := database.CheckSpotifyUserDB(db, "31ttjryp6mvbrrgsd64j2arbskda")
 	if inudb != true {
 		database.AddUser(db, "31ttjryp6mvbrrgsd64j2arbskda")
 	}
+
+	// Grab all playlists from a user
+	collection := playlist.GrabAllUsers(client, env.Env.Collection)
+	// Generate a svr file to monitor changes
+	// DummyGeneration("SnapshotId", collection) //SnapshotId - monitors changes to playlist // PlaylistId does not changes
+	// Fheck Db for collection of playlists returning a map of playlists
+	indb, err := database.CheckPlaylistDB(db, collection)
+	if err != nil {
+		fmt.Println("Error in check: ", err)
+		return
+	}
+	// if a Playlist does not exist add playlist to database
+	database.BulkAddPlaylists(db, collection, indb)
+
+	for _, list := range collection {
+		title = append(title, list.Name)
+		if database.CheckPlaylistEntry(db, list) == false {
+			plErr := database.AddPlaylist(db, list)
+			if plErr != nil {
+				log.Fatal("Playlist failed to add to db")
+			}
+			fmt.Println("Playlist Added to db")
+		} else {
+			fmt.Println("Playlist Exists in db")
+
+		}
+		// // For each playlist loop over tracks and contact youtube for video id
+		// retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
+		retrieve = playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
+		if len(retrieve) > 0 {
+			insdb := database.CheckSongDB(db, retrieve) // map[song.Spotify_id]bool
+			database.AddSongs(db, retrieve, insdb)
+		} else {
+			fmt.Println("Empty Playlist")
+		}
+
+		//	// List of songs are sent to file writer to generate folder and list of songs
+		// filewrite.WriteSongs(list.Name, retrieve)
+	}
+	wg.Wait()
+
+}
+
+func DummyGeneration(file string, payload []datamodel.Playlist) {
+	j, _ := json.MarshalIndent(payload, "", "  ")
+	filewrite.CreateDummyJson(file, j)
+}
+
+func LoadDummyPlaylist() []datamodel.Playlist {
+	data := []datamodel.Playlist{}
+	file, _ := ioutil.ReadFile("./env/svr/GrabAllUsers.json")
+	_ = json.Unmarshal([]byte(file), &data)
+	return data
+}
+
+func CheckUser() {
+	inudb := database.CheckSpotifyUserDB(db, "31ttjryp6mvbrrgsd64j2arbskda")
+	if inudb != true {
+		database.AddUser(db, "31ttjryp6mvbrrgsd64j2arbskda")
+	}
+}
+
+func Console() {
+	// fmt.Println("Enter UserId: ")
+	// youtubeapi.FindVideo(&youtubeClient, "")
+	// var input string
+	// fmt.Scanln(&input)
+}
+
+func CheckPlaylist() {
+	// Grab all playlists from a user
+	collection := playlist.GrabAllUsers(client, env.Env.Collection)
+	indb, err := database.CheckPlaylistDB(db, collection)
+	if err != nil {
+		fmt.Println("Error in check: ", err)
+		return
+	}
+	database.BulkAddPlaylists(db, collection, indb)
+}
+
+func DummyUserCollectionGeneration() {
+	// Create Json of Response
+	collection := LoadDummyPlaylist()
+	DummyGeneration("GrabAllUsers", collection)
+
+}
+
+func ProcessCollection() {
 	// for _, list := range collection {
 	// 	title = append(title, list.Name)
 	// 	if database.CheckPlaylistEntry(db, list) == false {
@@ -94,23 +166,8 @@ func main() {
 	// 		fmt.Println("Playlist Exists in db")
 
 	// 	}
-	// 	// retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
+	// 	retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
 	// 	// retrieve := playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
-	// 	// filewrite.WriteSongs(list.Name, retrieve)
+	// 	filewrite.WriteSongs(list.Name, retrieve)
 	// }
-
-	wg.Wait()
-
-}
-
-func DummyGeneration(file string, payload []datamodel.Playlist) {
-	j, _ := json.MarshalIndent(payload, "", "  ")
-	filewrite.CreateDummyJson("GrabAllUsers", j)
-}
-
-func LoadDummyPlaylist() []datamodel.Playlist {
-	data := []datamodel.Playlist{}
-	file, _ := ioutil.ReadFile("./env/svr/GrabAllUsers.json")
-	_ = json.Unmarshal([]byte(file), &data)
-	return data
 }

@@ -21,3 +21,10 @@ type YTItem struct {
 type YTId struct {
 	VideoId string `json:"videoId"`
 }
+
+type Song struct {
+	Name      string
+	Artist    string
+	SpotifyId string
+	YoutubeId string
+}

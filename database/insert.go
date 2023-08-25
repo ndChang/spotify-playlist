@@ -52,7 +52,7 @@ func BulkAddPlaylists(db *sql.DB, pls []datamodel.Playlist, dict map[string]bool
 
 	stmt.Exec(vals...)
 
-	fmt.Println("Rows added: ", counter)
+	fmt.Println("Playlists added: ", counter)
 }
 
 func AddUser(db *sql.DB, userid string) {
@@ -66,4 +66,32 @@ func AddUser(db *sql.DB, userid string) {
 
 	stmt.Exec(userid, tm)
 	fmt.Println("User: " + userid + " added")
+}
+
+func AddSongs(db *sql.DB, songs []datamodel.Song, dict map[string]bool) {
+	sqlStr := fmt.Sprintf("INSERT INTO %s.song(title, artist, youtube_video_id, spotify_id) VALUES ", env.Env.Schema)
+	var vals []interface{}
+	counter := 0
+
+	for _, song := range songs {
+		// SpotifyPlaylistId currently does not exist in db, Add values of playlist to query
+		if dict[song.SpotifyId] != true {
+			sqlStr += "(?, ?, ?, ?),"
+			vals = append(vals, song.Name, song.Artist, song.YoutubeId, song.SpotifyId)
+			counter++
+		}
+	}
+	if string(sqlStr[len(sqlStr)-1]) == " " {
+		fmt.Println("No entries to add")
+		return
+	}
+	sqlStr = sqlStr[:len(sqlStr)-1]
+	//prepare the statement
+	stmt, _ := db.Prepare(sqlStr)
+
+	defer stmt.Close()
+
+	stmt.Exec(vals...)
+
+	fmt.Println("Songs added: ", counter)
 }

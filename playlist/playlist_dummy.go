@@ -1,14 +1,11 @@
 package playlist
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"spotify-playlist-share/datamodel"
-	"spotify-playlist-share/env/env"
-	"strings"
 
 	"github.com/zmb3/spotify"
 )
@@ -19,36 +16,40 @@ type dummyResp struct {
 	Body []datamodel.YoutubeResponse
 }
 
-func GrabDummySongs(client spotify.Client, playlistId string) []string {
-	fmt.Println("HIT FUnc")
+func GrabDummySongs(client spotify.Client, playlistId string) []datamodel.Song {
 	playlistSpotifyID := spotify.ID(playlistId)
 	playlist, err := client.GetPlaylist(playlistSpotifyID)
 	if err != nil {
 		log.Fatalf("error retrieve playlist data: %v", err)
 	}
 
-	var list []string
+	var list []datamodel.Song
 	for _, value := range playlist.Tracks.Tracks {
 		counter++
-		song := value.Track.SimpleTrack.Name + " by " + value.Track.Album.Artists[0].Name
-		split := strings.Split(song, " ")
-		query := strings.Join(split, "%20")
+		var song datamodel.Song
+		song.Artist = value.Track.Album.Artists[0].Name
+		song.Name = value.Track.SimpleTrack.Name
+		song.SpotifyId = string(value.Track.ID)
+		list = append(list, song)
+		// // OLD FORMAT OF CALLING YOUTUBE IMMEDIATELY
+		// song := value.Track.SimpleTrack.Name + " by " + value.Track.Album.Artists[0].Name
+		// split := strings.Split(song, " ")
+		// query := strings.Join(split, "%20")
 
-		var ytr datamodel.YoutubeResponse
-		resp := SimulateResp("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=" + query + "&type=video&key=" + env.Env.YoutubeApi)
-		if err := json.Unmarshal(resp, &ytr); err != nil {
-			fmt.Println("error", err)
-		}
+		// var ytr datamodel.YoutubeResponse
+		// resp := SimulateResp("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=" + query + "&type=video&key=" + env.Env.YoutubeApi)
+		// if err := json.Unmarshal(resp, &ytr); err != nil {
+		// 	fmt.Println("error", err)
+		// }
 
-		if len(ytr.Items) > 0 {
-			entry := song + " " + "https://www.youtube.com/watch?v=" + ytr.Items[0].Id.VideoId
-			list = append(list, entry)
-		}
+		// if len(ytr.Items) > 0 {
+		// 	entry := song + " " + "https://www.youtube.com/watch?v=" + ytr.Items[0].Id.VideoId
+		// 	list = append(list, entry)
+		// }
 
-		// fmt.Println(ytr.Items[0].Id.VideoId)
+		// // fmt.Println(ytr.Items[0].Id.VideoId)
 
 	}
-	fmt.Println(counter)
 	return list
 }
 
