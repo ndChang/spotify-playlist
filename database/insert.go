@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"spotify-playlist-share/datamodel"
 	"spotify-playlist-share/env/env"
+	"spotify-playlist-share/youtuberest"
 	"time"
 )
 
@@ -76,8 +77,10 @@ func AddSongs(db *sql.DB, songs []datamodel.Song, dict map[string]bool) {
 	for _, song := range songs {
 		// SpotifyPlaylistId currently does not exist in db, Add values of playlist to query
 		if dict[song.SpotifyId] != true {
+			// check youtube for video url
+			youtubeurl := youtuberest.GetYoutubeVideoId(song)
 			sqlStr += "(?, ?, ?, ?),"
-			vals = append(vals, song.Name, song.Artist, song.YoutubeId, song.SpotifyId)
+			vals = append(vals, song.Name, song.Artist, youtubeurl, song.SpotifyId)
 			counter++
 		}
 	}

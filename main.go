@@ -93,8 +93,8 @@ func main() {
 
 		}
 		// // For each playlist loop over tracks and contact youtube for video id
-		// retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
-		retrieve = playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
+		retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
+		// retrieve = playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
 		if len(retrieve) > 0 {
 			insdb := database.CheckSongDB(db, retrieve) // map[song.Spotify_id]bool
 			database.AddSongs(db, retrieve, insdb)
@@ -103,7 +103,7 @@ func main() {
 		}
 
 		//	// List of songs are sent to file writer to generate folder and list of songs
-		// filewrite.WriteSongs(list.Name, retrieve)
+		filewrite.WriteSongs(list.Name, retrieve)
 	}
 	wg.Wait()
 

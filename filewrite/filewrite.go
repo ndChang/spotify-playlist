@@ -3,6 +3,7 @@ package filewrite
 import (
 	"log"
 	"os"
+	"spotify-playlist-share/datamodel"
 )
 
 func check(e error) {
@@ -37,17 +38,17 @@ func createTextFile(dirName string, songs string) {
 
 }
 
-func WriteSongs(dirName string, songs []string) {
+func WriteSongs(dirName string, songs []datamodel.Song) {
 	createDirectory(dirName)
 	song := songParser(songs)
 	createTextFile(dirName, song)
 }
 
-func songParser(songs []string) string {
+func songParser(songs []datamodel.Song) string {
 	songlist := ""
 
 	for _, song := range songs {
-		songlist += song + "\n"
+		songlist += song.Name + " " + song.Artist + " " + song.YoutubeId + "\n"
 	}
 	return songlist
 

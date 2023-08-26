@@ -1,14 +1,9 @@
 package playlist
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"spotify-playlist-share/datamodel"
-	"spotify-playlist-share/env/env"
-	"strings"
 
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
@@ -21,37 +16,21 @@ func StartClient(accessToken *oauth2.Token) spotify.Client {
 
 }
 
-func GrabSongs(client spotify.Client, playlistId string) []string {
+func GrabSongs(client spotify.Client, playlistId string) []datamodel.Song {
 	playlistSpotifyID := spotify.ID(playlistId)
 	playlist, err := client.GetPlaylist(playlistSpotifyID)
 	if err != nil {
 		log.Fatalf("error retrieve playlist data: %v", err)
 	}
 
-	var list []string
+	var list []datamodel.Song
 	for _, value := range playlist.Tracks.Tracks {
-		song := value.Track.SimpleTrack.Name + " by " + value.Track.Album.Artists[0].Name
-		split := strings.Split(song, " ")
-		query := strings.Join(split, "%20")
-
-		var ytr datamodel.YoutubeResponse
-		resp, err := http.Get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=" + query + "&type=video&key=" + env.Env.YoutubeApi)
-		if err != nil || resp.StatusCode != 200 {
-			panic("Issue with api call")
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err := json.Unmarshal(body, &ytr); err != nil {
-			fmt.Println("error", err)
-		}
-
-		if len(ytr.Items) > 0 {
-			entry := song + " " + "https://www.youtube.com/watch?v=" + ytr.Items[0].Id.VideoId
-			list = append(list, entry)
-		}
-
-		// fmt.Println(ytr.Items[0].Id.VideoId)
-
+		counter++
+		var song datamodel.Song
+		song.Artist = value.Track.Album.Artists[0].Name
+		song.Name = value.Track.SimpleTrack.Name
+		song.SpotifyId = string(value.Track.ID)
+		list = append(list, song)
 	}
 	return list
 }
