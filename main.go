@@ -32,6 +32,7 @@ var db *sql.DB
 var retrieve []datamodel.Song
 
 func init() {
+	filewrite.CleanPlaylistDirectory()
 	env.LoadEnv()
 	accessToken, authError = auth.LoadAuth()
 	if authError != nil {
@@ -96,14 +97,17 @@ func main() {
 		retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
 		// retrieve = playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
 		if len(retrieve) > 0 {
-			insdb := database.CheckSongDB(db, retrieve) // map[song.Spotify_id]bool
-			database.AddSongs(db, retrieve, insdb)
+			retrieve, insdb := database.CheckSongDB(db, retrieve) // map[song.Spotify_id]bool check to add songs to db
+			repull := database.AddSongs(db, &retrieve, insdb)
+			if repull == true {
+				fmt.Println("Checkdb")
+				retrieve, insdb = database.CheckSongDB(db, retrieve) // secondary check to remap songs
+			}
+			//	// List of songs are sent to file writer to generate folder and list of songs
+			filewrite.WriteSongs(list.Name, retrieve)
 		} else {
 			fmt.Println("Empty Playlist")
 		}
-
-		//	// List of songs are sent to file writer to generate folder and list of songs
-		filewrite.WriteSongs(list.Name, retrieve)
 	}
 	wg.Wait()
 

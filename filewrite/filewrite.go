@@ -1,6 +1,7 @@
 package filewrite
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"spotify-playlist-share/datamodel"
@@ -13,10 +14,10 @@ func check(e error) {
 }
 
 func createDirectory(dirName string) {
-	_, err := os.Stat("./spodify_list/" + dirName)
+	_, err := os.Stat("./spotify_list/" + dirName)
 
 	if os.IsNotExist(err) {
-		errDir := os.MkdirAll("./spodify_list/"+dirName, 0755)
+		errDir := os.MkdirAll("./spotify_list/"+dirName, 0755)
 		if errDir != nil {
 			log.Fatal(err)
 		}
@@ -27,7 +28,7 @@ func createDirectory(dirName string) {
 
 func createTextFile(dirName string, songs string) {
 	d1 := []byte(songs)
-	err := os.WriteFile("./spodify_list/"+dirName+"/"+dirName+".txt", d1, 0644)
+	err := os.WriteFile("./spotify_list/"+dirName+"/"+dirName+".txt", d1, 0644)
 	check(err)
 
 	//not sure if below code is needed
@@ -48,8 +49,20 @@ func songParser(songs []datamodel.Song) string {
 	songlist := ""
 
 	for _, song := range songs {
-		songlist += song.Name + " " + song.Artist + " " + song.YoutubeId + "\n"
+		songlist += song.Name + " " + song.Artist + " https://www.youtube.com/watch?v=" + song.YoutubeId + "\n"
 	}
 	return songlist
+}
 
+func CleanPlaylistDirectory() {
+	_, err := os.Stat("./spotify_list/")
+	if os.IsNotExist(err) {
+		fmt.Println("Directory spotify_list does not exist")
+	} else {
+		fmt.Println("Removing directory")
+	}
+	err = os.RemoveAll("./spotify_list")
+	check(err)
+
+	fmt.Println("Directory removed")
 }

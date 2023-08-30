@@ -87,7 +87,7 @@ func CheckSpotifyUserDB(db *sql.DB, userid string) bool {
 	return false
 }
 
-func CheckSongDB(db *sql.DB, songs []datamodel.Song) map[string]bool {
+func CheckSongDB(db *sql.DB, songs []datamodel.Song) ([]datamodel.Song, map[string]bool) {
 	list := ""
 	for _, pl := range songs {
 		list += fmt.Sprintf("'%s', ", pl.SpotifyId)
@@ -103,16 +103,24 @@ func CheckSongDB(db *sql.DB, songs []datamodel.Song) map[string]bool {
 		// return nil, err
 	}
 	defer rows.Close()
-
+	var checked []datamodel.Song
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
-		var song tables.Song
-		if err := rows.Scan(&song.Id, &song.Title, &song.Artist, &song.Youtube_video_id,
-			&song.Spotify_id); err != nil {
+		var song datamodel.Song
+		var id int
+		if err := rows.Scan(&id, &song.Name, &song.Artist, &song.YoutubeId,
+			&song.SpotifyId); err != nil {
 			fmt.Println(err)
 			// return avail, err
 		}
-		avail[song.Spotify_id] = true
+		avail[song.SpotifyId] = true
+		checked = append(checked, song)
 	}
-	return avail
+	if len(checked) == len(songs) {
+		fmt.Println("All songs are in db")
+		return checked, avail
+	} else {
+		fmt.Println(len(checked), " out of ", len(songs), " in db")
+		return songs, avail
+	}
 }
