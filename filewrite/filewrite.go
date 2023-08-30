@@ -13,11 +13,11 @@ func check(e error) {
 	}
 }
 
-func createDirectory(dirName string) {
-	_, err := os.Stat("./spotify_list/" + dirName)
+func createDirectory(id string, dirName string) {
+	_, err := os.Stat("./spotify_list_" + id + "/" + dirName)
 
 	if os.IsNotExist(err) {
-		errDir := os.MkdirAll("./spotify_list/"+dirName, 0755)
+		errDir := os.MkdirAll("./spotify_list_"+id+"/"+dirName, 0755)
 		if errDir != nil {
 			log.Fatal(err)
 		}
@@ -26,9 +26,9 @@ func createDirectory(dirName string) {
 	}
 }
 
-func createTextFile(dirName string, songs string) {
+func createTextFile(id string, dirName string, songs string) {
 	d1 := []byte(songs)
-	err := os.WriteFile("./spotify_list/"+dirName+"/"+dirName+".txt", d1, 0644)
+	err := os.WriteFile("./spotify_list_"+id+"/"+dirName+"/"+dirName+".txt", d1, 0644)
 	check(err)
 
 	//not sure if below code is needed
@@ -39,10 +39,10 @@ func createTextFile(dirName string, songs string) {
 
 }
 
-func WriteSongs(dirName string, songs []datamodel.Song) {
-	createDirectory(dirName)
+func WriteSongs(id string, dirName string, songs []datamodel.Song) {
+	createDirectory(id, dirName)
 	song := songParser(songs)
-	createTextFile(dirName, song)
+	createTextFile(id, dirName, song)
 }
 
 func songParser(songs []datamodel.Song) string {
@@ -54,14 +54,14 @@ func songParser(songs []datamodel.Song) string {
 	return songlist
 }
 
-func CleanPlaylistDirectory() {
-	_, err := os.Stat("./spotify_list/")
+func CleanPlaylistDirectory(id string) {
+	_, err := os.Stat("./spotify_list_" + id)
 	if os.IsNotExist(err) {
 		fmt.Println("Directory spotify_list does not exist")
 	} else {
 		fmt.Println("Removing directory")
 	}
-	err = os.RemoveAll("./spotify_list")
+	err = os.RemoveAll("./spotify_list" + id)
 	check(err)
 
 	fmt.Println("Directory removed")

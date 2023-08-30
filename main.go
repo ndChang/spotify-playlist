@@ -30,10 +30,11 @@ var wg sync.WaitGroup
 var mysqlerr error
 var db *sql.DB
 var retrieve []datamodel.Song
+var userid string
 
 func init() {
-	filewrite.CleanPlaylistDirectory()
 	env.LoadEnv()
+	userid = "31ttjryp6mvbrrgsd64j2arbskda"
 	accessToken, authError = auth.LoadAuth()
 	if authError != nil {
 		log.Fatalf("error retrieve access token: %v", authError)
@@ -63,9 +64,11 @@ func main() {
 	fmt.Println("Connected!")
 
 	// Check Db for User if doesnt exist add user
-	inudb := database.CheckSpotifyUserDB(db, "31ttjryp6mvbrrgsd64j2arbskda")
+	inudb := database.CheckSpotifyUserDB(db, userid)
 	if inudb != true {
-		database.AddUser(db, "31ttjryp6mvbrrgsd64j2arbskda")
+		database.AddUser(db, userid)
+	} else {
+		filewrite.CleanPlaylistDirectory(userid)
 	}
 
 	// Grab all playlists from a user
@@ -104,7 +107,7 @@ func main() {
 				retrieve, insdb = database.CheckSongDB(db, retrieve) // secondary check to remap songs
 			}
 			//	// List of songs are sent to file writer to generate folder and list of songs
-			filewrite.WriteSongs(list.Name, retrieve)
+			filewrite.WriteSongs(userid, list.Name, retrieve)
 		} else {
 			fmt.Println("Empty Playlist")
 		}
