@@ -87,7 +87,7 @@ func CheckSpotifyUserDB(db *sql.DB, userid string) bool {
 	return false
 }
 
-func CheckSongDB(db *sql.DB, songs []datamodel.Song) ([]datamodel.Song, map[string]bool) {
+func CheckSongDB(db *sql.DB, songs []datamodel.Song, firstpass bool) ([]datamodel.Song, map[string]bool) {
 	list := ""
 	for _, pl := range songs {
 		list += fmt.Sprintf("'%s', ", pl.SpotifyId)
@@ -119,6 +119,8 @@ func CheckSongDB(db *sql.DB, songs []datamodel.Song) ([]datamodel.Song, map[stri
 	if len(checked) == len(songs) {
 		fmt.Println("All songs are in db")
 		return checked, avail
+	} else if len(checked) == len(songs) && firstpass != true {
+		fmt.Println(len(checked), " out of ", len(songs), " in db Add logic dealing with possible song duplication")
 	} else {
 		fmt.Println(len(checked), " out of ", len(songs), " in db")
 		return songs, avail

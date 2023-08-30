@@ -37,7 +37,7 @@ func GrabSongs(client spotify.Client, playlistId string) []datamodel.Song {
 
 func GrabAllUsers(client spotify.Client, playlistId string) []datamodel.Playlist {
 	var UserPlaylistsCollection []datamodel.Playlist
-	userPlaylists, getPlaylistErr := client.GetPlaylistsForUser("31ttjryp6mvbrrgsd64j2arbskda")
+	userPlaylists, getPlaylistErr := client.GetPlaylistsForUser(playlistId)
 	if getPlaylistErr != nil {
 		log.Fatalf("error retrieve playlist data: %v", getPlaylistErr)
 	}

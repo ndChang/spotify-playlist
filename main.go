@@ -100,11 +100,11 @@ func main() {
 		retrieve := playlist.GrabSongs(client, list.SpotifyPlaylistId)
 		// retrieve = playlist.GrabDummySongs(client, list.SpotifyPlaylistId)
 		if len(retrieve) > 0 {
-			retrieve, insdb := database.CheckSongDB(db, retrieve) // map[song.Spotify_id]bool check to add songs to db
+			retrieve, insdb := database.CheckSongDB(db, retrieve, true) // map[song.Spotify_id]bool check to add songs to db
 			repull := database.AddSongs(db, &retrieve, insdb)
 			if repull == true {
 				fmt.Println("Checkdb")
-				retrieve, insdb = database.CheckSongDB(db, retrieve) // secondary check to remap songs
+				retrieve, insdb = database.CheckSongDB(db, retrieve, false) // secondary check to remap songs
 			}
 			//	// List of songs are sent to file writer to generate folder and list of songs
 			filewrite.WriteSongs(userid, list.Name, retrieve)
