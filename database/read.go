@@ -125,4 +125,5 @@ func CheckSongDB(db *sql.DB, songs []datamodel.Song, firstpass bool) ([]datamode
 		fmt.Println(len(checked), " out of ", len(songs), " in db")
 		return songs, avail
 	}
+	return songs, avail
 }
